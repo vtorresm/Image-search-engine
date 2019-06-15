@@ -6,16 +6,60 @@ class App extends Component {
 
   state = {
     termino : '',
-    imagenes : []
+    imagenes : [],
+    pagina : ''
   }
 
-  
+  scroll = () => {
+    const elemento = document.querySelector('.jumbotron');
+    elemento.scrollIntoView('smooth', 'start');
+  }
+
+  paginaAnterior = () => {
+    //Leer el state pagina actual
+    let pagina = this.state.pagina;
+
+    //Si la pagian es uno, ya no ir atras
+    if(pagina === 1) return null;
+
+    //Restar uno a la pagina actual
+    pagina--;
+
+    //Agregar el cambio al state
+    this.setState ({
+      pagina
+    }, () => {
+      this.consultarApi();
+      this.scroll();
+    });
+
+    //console.log(pagina);
+  }
+
+  paginaSiguiente = () => {
+    //Leer el state pagina actual
+    let pagina = this.state.pagina;
+
+    //Sumar uno a la pagina actual
+    pagina++;
+
+    //Agregar el cambio al state
+    this.setState ({
+      pagina
+    }, () => {
+      this.consultarApi();
+      this.scroll();
+    });
+
+    //console.log(pagina);
+  }
 
   consultarApi = () => {
     const termino = this.state.termino;
-    const url = `https://pixabay.com/api/?key=12767615-0aa6dc1c2b8a7f9407f9d6a0f&q=${termino}&per_page=30`;
+    const pagina = this.state.pagina;
+    const url = `https://pixabay.com/api/?key=12767615-0aa6dc1c2b8a7f9407f9d6a0f&q=${termino}&per_page=30&page=${pagina}`;
   
-    //console.log(url);
+    console.log(url);
     fetch(url)
       .then(respuesta => respuesta.json())
       .then(resultado => this.setState({ imagenes: resultado.hits }))
@@ -24,7 +68,8 @@ class App extends Component {
 
   datosBusqueda = (termino) => {
     this.setState({
-      termino
+      termino : termino,
+      pagina : 1
     }, () => {
       this.consultarApi();
     })
@@ -42,6 +87,8 @@ class App extends Component {
         <div className="row justify-content-center">
           <Resultado
             imagenes={this.state.imagenes}
+            paginaAnterior={this.paginaAnterior}
+            paginaSiguiente={this.paginaSiguiente}
           />
         </div>
       </div>
